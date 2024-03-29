@@ -1,15 +1,20 @@
-import { Ctx, Hears, Message, On, Start, Update } from "nestjs-telegraf";
+import { Action, Ctx, Hears, Message, On, Start, Update } from "nestjs-telegraf";
 import { Markup, Scenes, Telegraf } from "telegraf";
 import { actionButtons, actionButtons2, actionButtons3 } from "./buttons";
+import { ConfigService } from "@nestjs/config";
+import { ChatgptService } from "@src/chatgpt/chatgpt.service";
 
 type Context = Scenes.SceneContext
 
 @Update()
 export class TelegramService extends Telegraf<Context> {
+    constructor(private readonly config: ConfigService, private readonly chatGpt: ChatgptService) {
+        super(config.get('TELEGRAM_TOKEN'));
+    }
 
     @Start()
-    onStart(@Ctx() ctx: Context) {
-        ctx.reply('👋 Hello!', actionButtons())
+    async onStart(@Ctx() ctx: Context) {
+        await ctx.reply('👋 Hello!', actionButtons())
     }
 
     @Hears('3text2')
@@ -18,7 +23,10 @@ export class TelegramService extends Telegraf<Context> {
         ctx.reply('[@Hears]: button 3text2')
     }
 
-
+    @On('photo')
+    onJoin(@Ctx() ctx: Context) {
+        console.log('joined')
+    }
 
     @On('text')
     onMessage(@Message('text') message: string, @Ctx() ctx: Context) {
