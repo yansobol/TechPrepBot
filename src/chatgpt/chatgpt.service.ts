@@ -3,6 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable, catchError, map, of } from 'rxjs';
 import { chatgptResponse } from './interface/chatgpt.interface';
+import { questionsFromChatGpt } from '@src/database/dataFromChatGpt';
+import { QuestionDto } from '@src/models/question/dto/question.dto';
 
 @Injectable()
 export class ChatgptService {
@@ -28,6 +30,15 @@ export class ChatgptService {
                     return of('Error on getting response from ChatGpt')
                 })
             )
+    }
 
+    async generateQuestions(): Promise<QuestionDto[]> {
+        const response = this.generateResponse('df')
+        return questionsFromChatGpt
+    }
+
+    async getQuestion(): Promise<QuestionDto> {
+        const randomIndex = Math.floor(Math.random() * questionsFromChatGpt.length)
+        return questionsFromChatGpt[randomIndex]
     }
 }
